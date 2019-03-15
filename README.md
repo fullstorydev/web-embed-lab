@@ -14,9 +14,9 @@ The WEL works with "experiments" which are bundles of files that hold all of the
 
 Unlike other tools, the WEL is able to capture a remote web site into a "page formula" that never changes. That way tests can be run with consistent results and tests don't add load to the remote web site.
 
-The overall workflow of the WEL is to capture remote web sites, write tests, and then use [WebDriver](https://www.w3.org/TR/webdriver1/) and [Selenium](https://docs.seleniumhq.org/) to run those tests on those capture sites in real browsers.
+The overall workflow of the WEL is to capture remote web sites, write tests, and then use [WebDriver](https://www.w3.org/TR/webdriver1/) and [Selenium](https://docs.seleniumhq.org/) to run those tests on those captured sites in real browsers.
 
-People using the WEL generally work in two phases: developing experiments and running experiments.
+People using the WEL generally work in two separate phases: developing experiments and then later running experiments in their continuous integration system.
 
 These documents cover those topics:
 - [Developing experiments](./docs/EXPERIMENT_DEVELOPMENT.md)
