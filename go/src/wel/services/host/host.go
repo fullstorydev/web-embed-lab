@@ -20,6 +20,9 @@ var ProbesURL = "/__wel_probes.js"
 // The URL for the embedded script that is being tested
 var EmbeddedScriptURL = "/__wel_embed.js"
 
+// The URL for the embedded script that is being tested
+var ControlURL = "/__wel_control"
+
 // The resources for the prober script that runs the tests
 var ProberDistPath = "fe/dist/prober"
 var ProberDistURL = "/__wel/prober/"
@@ -34,10 +37,13 @@ func RunHTTP(port int64, formulasPath string, probesPath string, embeddedScriptP
 	}
 
 	// Read the embedded script
-	embeddedScript, err := ioutil.ReadFile(embeddedScriptPath)
-	if err != nil {
-		log.Fatal("Could not read the embedded script:", embeddedScriptPath)
-		return
+	embeddedScript := []byte("// empty embedded script \n")
+	if embeddedScriptPath != "" {
+		embeddedScript, err = ioutil.ReadFile(embeddedScriptPath)
+		if err != nil {
+			log.Fatal("Could not read the embedded script:", embeddedScriptPath)
+			return
+		}
 	}
 
 	mux := http.NewServeMux()
@@ -57,15 +63,21 @@ func RunHTTP(port int64, formulasPath string, probesPath string, embeddedScriptP
 	// Serve prober JS that runs the tests
 	mux.Handle(ProberDistURL, http.StripPrefix(ProberDistURL, http.FileServer(http.Dir(ProberDistPath))))
 
-	// Serve page formulas
 	formulaHost, err := NewFormulaHost(formulasPath)
 	if err != nil {
 		log.Fatal(fmt.Sprintf("Error starting formula host: %v", err))
 		return
 	}
-	mux.Handle("/", formulaHost)
 
-	// TODO: Receive control messages to switch page formulas
+	/*
+		The control web API is usually called by the runner command to change which page formula is being hosted
+	*/
+	mux.HandleFunc(ControlURL, func(response http.ResponseWriter, request *http.Request) {
+		HandleControlRequest(response, request, formulaHost)
+	})
+
+	// Serve page formulas
+	mux.Handle("/", formulaHost)
 
 	logger.Println("Listening on", port)
 	//log.Fatal(http.ListenAndServeTLS(fmt.Sprintf(":%d", port), weltls.LocalhostCertPath, weltls.LocalhostKeyPath, mux))

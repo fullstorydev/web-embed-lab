@@ -22,6 +22,15 @@ var browserstackUserVar = "BROWSERSTACK_USER"
 var browserstackAPIKeyVar = "BROWSERSTACK_API_KEY"
 
 func main() {
+	if len(os.Args) == 3 {
+		// Run in developer host mode
+		host.RunHTTP(runnerPort, os.Args[1], os.Args[2], "")
+	} else if len(os.Args) != 5 {
+		printHelp()
+		os.Exit(1)
+		return
+	}
+
 	/*
 		Read the WebDriver configuration
 	*/
@@ -29,12 +38,6 @@ func main() {
 	browserstackAPIKey := os.Getenv(browserstackAPIKeyVar)
 	if browserstackUser == "" || browserstackAPIKey == "" {
 		logger.Println("Environment variables", browserstackUserVar, "and", browserstackAPIKeyVar, "are required")
-		os.Exit(1)
-		return
-	}
-
-	if len(os.Args) != 5 {
-		printHelp()
 		os.Exit(1)
 		return
 	}
@@ -192,5 +195,7 @@ func main() {
 
 func printHelp() {
 	logger.Println("usage: runner <formulas dir> <probes dir> <experiment json> <embed script>")
-	logger.Println("Example: runner ./examples/page-formulas/ ./examples/test-probes/ ./examples/experiments/hello-world.json ./examples/embed_scripts/no-op.js")
+	logger.Println("Example: runner ./examples/page-formulas/ ./examples/test-probes/ ./examples/experiments/hello-world.json ./examples/embed_scripts/no-op.js\n")
+	logger.Println("usage (development mode): runner <formulas dir> <probes dir>")
+	logger.Println("Example: runner ./examples/page-formulas/ ./examples/test-probes/")
 }

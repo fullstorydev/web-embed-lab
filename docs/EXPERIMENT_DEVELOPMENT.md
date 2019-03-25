@@ -106,3 +106,42 @@ Take the directory name from the colluder output (like `captures/2019-2-11-5C61F
 	./go/bin/formulate ./captures/2019-2-11-5C61FA80-17D8/ ../formulas/some-name/
 
 You should now have an initial page formula in `../formulas/some-name/`. (feel free to pick something more descriptive than "some-name")
+
+## Refining a page formula
+
+Once you have a page formula you'll probably need to edit it a bit to make it a stable page for test probes.
+
+The `runner` command used when running experiments (explained in [Experiment running](EXPERIMENT_RUNNING.md)) has a developer mode that enables you to host a specific page formula and look at it with your browser.
+
+Assuming that you have run `make` to build the `runner` command (explained in [Installation](Installation.md)) you can put the `runner` into development mode like this:
+
+	cd web-embed-lab/
+	./go/bin/runner \
+		./examples/page-formulas/ \	# a directory holding page formula sub-directories
+		./examples/test-probes/		# a directory holding test probe sub-directories
+
+You should see a message that the `runner` is hosting one of your formulas and listening on port 8090.
+
+You can point your web browser at http://127.0.0.1:8090/ to see the currently hosted formula.
+
+The `runner` only hosts one page formula at a time but it knows about all of the formulas in the directory of page formulas that you passed it above.
+
+You can list the available page formulas and learn which formula is currently hosted by GETing this URL:
+
+	curl http://127.0.0.1:8090/__wel_control
+
+The return value will list the formulas and which formula is currently hosted:
+
+	{
+		"formulas":[
+			"vanilla-site",
+			"hello-world"
+		],
+		"current-formula":"vanilla-site"
+	}
+
+You can change which page formula `runner` is hosting by PUTing to the same URL:
+
+	curl http://127.0.0.1:8090/__wel_control -X PUT \
+		--data "{\"active-formula\":\"PAGE_FORMULA_NAME\"}"
+

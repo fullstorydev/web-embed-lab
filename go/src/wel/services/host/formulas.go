@@ -85,6 +85,16 @@ func NewFormulaHost(formulasPath string) (*FormulaHost, error) {
 	return host, nil
 }
 
+func (host *FormulaHost) SetCurrentFormula(name string) bool {
+	for formulaName := range host.PageFormulas {
+		if name == formulaName {
+			host.CurrentFormula = formulaName
+			return true
+		}
+	}
+	return false
+}
+
 func (host *FormulaHost) MatchRoute(path string) *formulas.Route {
 	if host.CurrentFormula == "" {
 		return nil
