@@ -96,7 +96,7 @@ func main() {
 		}
 		tunnels, err = runner.FetchNgrokTunnels()
 		if err != nil {
-			logger.Println("Error fetching tunnels", err)
+			//logger.Println("Error fetching tunnels", err)
 			continue
 		}
 		if len(tunnels.Tunnels) == 2 {
@@ -106,6 +106,7 @@ func main() {
 				pageHostURL = tunnels.Tunnels[1].PublicURL
 			} else {
 				logger.Println("No ngrok tunnel is https")
+				os.Exit(1)
 				return
 			}
 			logger.Println("Found ngrok tunnel:", pageHostURL)
@@ -138,6 +139,7 @@ func main() {
 		page, err := agouti.NewPage(browserstackURL, []agouti.Option{agouti.Desired(capabilities)}...)
 		if err != nil {
 			logger.Println("Failed to open selenium:", err)
+			os.Exit(1)
 			return
 		}
 		logger.Println("Opened", browserConfiguration["browserName"])
@@ -145,19 +147,33 @@ func main() {
 		hasNavigated := false
 		for _, pageFormulaConfig := range experiment.PageFormulaConfigurations {
 			logger.Println("Hosting page formula:", pageFormulaConfig.Name)
-			// TODO: tell the host which page formula to use
+
+			// Tell the host which page formula to use
+			formulaSet, err := host.RequestPageFormulaChange(runnerPort, pageFormulaConfig.Name)
+			if err != nil {
+				logger.Println("Failed to reach host control API", err)
+				os.Exit(1)
+				return
+			}
+			if formulaSet == false {
+				logger.Println("Failed to host page formula", pageFormulaConfig.Name)
+				os.Exit(1)
+				return
+			}
 
 			logger.Println("Testing...")
 			if hasNavigated {
 				err = page.Reset()
 				if err != nil {
 					logger.Println("Failed to reset page", err)
+					os.Exit(1)
 					return
 				}
 			}
 			err = page.Navigate(pageHostURL)
 			if err != nil {
 				logger.Println("Failed to navigate to hosted page formula", err)
+				os.Exit(1)
 				return
 			}
 			hasNavigated = true

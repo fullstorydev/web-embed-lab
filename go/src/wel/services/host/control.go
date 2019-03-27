@@ -1,15 +1,17 @@
 package host
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 )
 
+/*
+HandleControlRequest is used as an HTTP responder function in host.RunHTTP
+*/
 func HandleControlRequest(response http.ResponseWriter, request *http.Request, formulaHost *FormulaHost) {
-	logger.Println("Handling control")
-
 	if request.Method == "PUT" {
 		requestBodyData, err := ioutil.ReadAll(request.Body)
 		if err != nil {
@@ -24,7 +26,6 @@ func HandleControlRequest(response http.ResponseWriter, request *http.Request, f
 			response.Write([]byte(fmt.Sprintf("Error: %v", err)))
 			return
 		}
-		logger.Println("PUT", controlRequest)
 		if controlRequest.CurrentFormula != "" {
 			formulaHost.SetCurrentFormula(controlRequest.CurrentFormula)
 		}
@@ -63,4 +64,41 @@ A serializable data structure for responding from the control API
 type ControlResponse struct {
 	Formulas       []string `json:"formulas"`
 	CurrentFormula string   `json:"current-formula"`
+}
+
+/*
+Uses the HTTP control API to request that the host change to a new page formula
+*/
+func RequestPageFormulaChange(httpPort int64, formulaName string) (bool, error) {
+
+	url := fmt.Sprintf("http://127.0.0.1:%v%v", httpPort, ControlURL)
+
+	data, err := json.Marshal(&ControlRequest{
+		CurrentFormula: formulaName,
+	})
+	if err != nil {
+		return false, err
+	}
+
+	client := &http.Client{}
+	request, err := http.NewRequest("PUT", url, bytes.NewReader(data))
+	if err != nil {
+		return false, err
+	}
+	response, err := client.Do(request)
+	if err != nil {
+		return false, err
+	}
+	defer response.Body.Close()
+
+	responseData, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return false, err
+	}
+	controlResponse := &ControlResponse{}
+	err = json.Unmarshal(responseData, controlResponse)
+	if err != nil {
+		return false, err
+	}
+	return controlResponse.CurrentFormula == formulaName, nil
 }
