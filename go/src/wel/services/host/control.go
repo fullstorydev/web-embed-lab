@@ -10,6 +10,7 @@ import (
 
 /*
 HandleControlRequest is used as an HTTP responder function in host.RunHTTP
+It implements a control API to check and set which page formula is hosted.
 */
 func HandleControlRequest(response http.ResponseWriter, request *http.Request, formulaHost *FormulaHost) {
 	if request.Method == "PUT" {

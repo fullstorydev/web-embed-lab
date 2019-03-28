@@ -21,6 +21,9 @@ var browserstackURL = "http://hub-cloud.browserstack.com/wd/hub"
 var browserstackUserVar = "BROWSERSTACK_USER"
 var browserstackAPIKeyVar = "BROWSERSTACK_API_KEY"
 
+/*
+The runner command runs an experiment, using Selenium to run test probes in page formulas.
+*/
 func main() {
 	if len(os.Args) == 3 {
 		// Run in developer host mode
@@ -178,7 +181,6 @@ func main() {
 			}
 			hasNavigated = true
 
-			// TODO Run the actual tests
 			var returnValue string
 			page.RunScript("return JSON.stringify(runWebEmbedLabProbes());", map[string]interface{}{}, &returnValue)
 			probeResults := &runner.ProbeResults{}

@@ -28,6 +28,10 @@ var ProberDistPath = "fe/dist/prober"
 var ProberDistURL = "/__wel/prober/"
 var ProberURL = fmt.Sprintf("%vprober.js", ProberDistURL)
 
+/*
+RunHTTP brings up the page formula host service
+This function blocks until the service or process is killed.
+*/
 func RunHTTP(port int64, formulasPath string, probesPath string, embeddedScriptPath string) {
 	// Collect and contatenate the probe scripts
 	probeScript, err := GenerateProbesScript(probesPath)

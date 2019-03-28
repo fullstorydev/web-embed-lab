@@ -228,6 +228,11 @@ func hijackConnect(req *http.Request, clientConn net.Conn, proxyServer *ProxySer
 			if _, err := io.Copy(rawClientTls, bytes.NewReader(body)); err != nil {
 				logger.Printf("Error copying to client: %s", err)
 			}
+		} else {
+			if _, err := io.WriteString(rawClientTls, "Content-Length: 0\r\n\r\n"); err != nil {
+				logger.Printf("Cannot write zero content length: %v", err)
+				return
+			}
 		}
 	}
 }
