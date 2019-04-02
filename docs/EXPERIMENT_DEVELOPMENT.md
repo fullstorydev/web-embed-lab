@@ -83,6 +83,11 @@ You should now see the Formulator listed in the "Temporary Extensions" section o
 
 ### Capture a session
 
+- Launch the Colluder
+  
+	cd web-embed-lab/
+	./go/bin/colluder
+
 - Navigate to the target page
 - Open the Javascript console, then choose the "Formulator" tab to open the dev-panel
 - Wait until the Formulator state is "WebSockets: open" and "Capturing: false"
