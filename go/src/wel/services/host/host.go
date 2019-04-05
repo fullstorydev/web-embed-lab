@@ -14,25 +14,37 @@ import (
 
 var logger = log.New(os.Stdout, "[host] ", 0)
 
-// The scripts for the tests
-var ProbesURL = "/__wel_probes.js"
-
 // The URL for the embedded script that is being tested
 var EmbeddedScriptURL = "/__wel_embed.js"
 
 // The URL for the embedded script that is being tested
 var ControlURL = "/__wel_control"
 
+// The script that contains the test probes
+var ProbesURL = "/__wel_probes.js"
+
 // The resources for the prober script that runs the tests
-var ProberDistPath = "fe/dist/prober"
 var ProberDistURL = "/__wel/prober/"
+
+// THe URL for the script that runs the tests. The test scripts are separately loaded at ProbesURL.
 var ProberURL = fmt.Sprintf("%vprober.js", ProberDistURL)
 
 /*
 RunHTTP brings up the page formula host service
 This function blocks until the service or process is killed.
 */
-func RunHTTP(port int64, formulasPath string, probesPath string, embeddedScriptPath string) {
+func RunHTTP(port int64, frontEndDistPath string, formulasPath string, probesPath string, embeddedScriptPath string) {
+	// Check that the front end dist directory exists
+	feDistPathInfo, err := os.Stat(frontEndDistPath)
+	if err != nil {
+		log.Fatal("Could not read the front end dist path:", frontEndDistPath, err)
+		return
+	}
+	if feDistPathInfo.IsDir() == false {
+		log.Fatal("The front end dist path does not lead to a directory:", frontEndDistPath)
+		return
+	}
+
 	// Collect and contatenate the probe scripts
 	probeScript, err := GenerateProbesScript(probesPath)
 	if err != nil {
@@ -58,6 +70,8 @@ func RunHTTP(port int64, formulasPath string, probesPath string, embeddedScriptP
 		response.Write([]byte(embeddedScript))
 	})
 
+	logger.Println("ProbesURL", ProbesURL)
+
 	// Serve test probes' JS
 	mux.HandleFunc(ProbesURL, func(response http.ResponseWriter, request *http.Request) {
 		response.Header().Add("Content-Type", "text/javascript")
@@ -65,7 +79,8 @@ func RunHTTP(port int64, formulasPath string, probesPath string, embeddedScriptP
 	})
 
 	// Serve prober JS that runs the tests
-	mux.Handle(ProberDistURL, http.StripPrefix(ProberDistURL, http.FileServer(http.Dir(ProberDistPath))))
+
+	mux.Handle(ProberDistURL, http.StripPrefix(ProberDistURL, http.FileServer(http.Dir(frontEndDistPath+"/prober/"))))
 
 	formulaHost, err := NewFormulaHost(formulasPath)
 	if err != nil {

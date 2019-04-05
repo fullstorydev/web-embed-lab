@@ -7,6 +7,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"net/url"
 	"os"
 	"path"
 	"regexp"
@@ -171,6 +172,7 @@ func createTemplateRoutes(
 	filesPath string,
 	hostname string,
 ) {
+	isFirst := true
 	// Write HTML templates and create their routes
 	for _, request := range requests {
 		if request.StatusCode != 200 {
@@ -180,7 +182,17 @@ func createTemplateRoutes(
 		if request.URL == "/favicon.ico" {
 			return
 		}
+
 		regex := goRegexpForURL(request.URL, hostname)
+		if isFirst {
+			parsedURL, err := url.Parse(request.URL)
+			if err != nil {
+				logger.Println("Bad URL in request:", request.URL, err)
+				continue
+			}
+			isFirst = false
+			formula.InitialPath = parsedURL.Path
+		}
 
 		sourceInfo, ok := fileMap[request.OutputFileId]
 		if ok != true {
@@ -282,9 +294,9 @@ func injectProbes(templatePath string) error {
 	newTemplate := fmt.Sprintf(
 		"%v\n<script src='%v'></script>\n<script src='%v'></script>\n<script async src='%v'></script>\n%v",
 		string(templateBytes[0:location[1]]),
-		host.ProbesURL,
-		host.ProberURL,
-		host.EmbeddedScriptURL,
+		host.ProbesURL,         // test probe scripts
+		host.ProberURL,         // test runner script
+		host.EmbeddedScriptURL, // embedded script that is being tested
 		string(templateBytes[location[1]+1:]),
 	)
 

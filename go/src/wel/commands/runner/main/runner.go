@@ -20,14 +20,24 @@ var runnerPort int64 = 8090
 var browserstackURL = "http://hub-cloud.browserstack.com/wd/hub"
 var browserstackUserVar = "BROWSERSTACK_USER"
 var browserstackAPIKeyVar = "BROWSERSTACK_API_KEY"
+var frontEndDistPathVar = "FRONT_END_DIST"
 
 /*
 The runner command runs an experiment, using Selenium to run test probes in page formulas.
 */
 func main() {
+	/*
+		Read the path of the front end dist directory
+	*/
+	frontEndDistPath := os.Getenv(frontEndDistPathVar)
+	if frontEndDistPath == "" {
+		logger.Println("Environment variable", frontEndDistPathVar, "is required")
+		os.Exit(1)
+	}
+
 	if len(os.Args) == 3 {
 		// Run in developer host mode
-		host.RunHTTP(runnerPort, os.Args[1], os.Args[2], "")
+		host.RunHTTP(runnerPort, frontEndDistPath, os.Args[1], os.Args[2], "")
 	} else if len(os.Args) != 5 {
 		printHelp()
 		os.Exit(1)
@@ -66,6 +76,13 @@ func main() {
 	}
 
 	/*
+		Start the page formula host
+	*/
+	go func() {
+		host.RunHTTP(runnerPort, frontEndDistPath, os.Args[1], os.Args[2], os.Args[4])
+	}()
+
+	/*
 		Set up the ngrok tunnel
 	*/
 	ngrokController := runner.NewNgrokController()
@@ -99,7 +116,6 @@ func main() {
 		}
 		tunnels, err = runner.FetchNgrokTunnels()
 		if err != nil {
-			//logger.Println("Error fetching tunnels", err)
 			continue
 		}
 		if len(tunnels.Tunnels) == 2 {
@@ -116,13 +132,6 @@ func main() {
 			break
 		}
 	}
-
-	/*
-		Start the page formula host
-	*/
-	go func() {
-		host.RunHTTP(runnerPort, os.Args[1], os.Args[2], os.Args[4])
-	}()
 
 	/*
 		For each {browser config, page formula} combination:
@@ -152,7 +161,7 @@ func main() {
 			logger.Println("Hosting page formula:", pageFormulaConfig.Name)
 
 			// Tell the host which page formula to use
-			formulaSet, err := host.RequestPageFormulaChange(runnerPort, pageFormulaConfig.Name)
+			formulaSet, initialPath, err := host.RequestPageFormulaChange(runnerPort, pageFormulaConfig.Name)
 			if err != nil {
 				logger.Println("Failed to reach host control API", err)
 				os.Exit(1)
@@ -173,7 +182,8 @@ func main() {
 					return
 				}
 			}
-			err = page.Navigate(pageHostURL)
+			logger.Println("Navigating to:", pageHostURL+initialPath)
+			err = page.Navigate(pageHostURL + initialPath)
 			if err != nil {
 				logger.Println("Failed to navigate to hosted page formula", err)
 				os.Exit(1)
@@ -186,7 +196,8 @@ func main() {
 			probeResults := &runner.ProbeResults{}
 			err = json.Unmarshal([]byte(returnValue), probeResults)
 			if err != nil {
-				logger.Println("Error parsing probes result", err)
+				logger.Println("Error parsing probes result", err, returnValue)
+				time.Sleep(100 * time.Minute)
 				os.Exit(1)
 				return
 			} else {

@@ -16,6 +16,7 @@ type TestProbe struct {
 
 type PageFormulaConfiguration struct {
 	Name string `json:"name"`
+	//TemplateData
 }
 
 /*

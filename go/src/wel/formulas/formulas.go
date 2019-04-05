@@ -29,6 +29,7 @@ type PageFormula struct {
 	Comment      string            `json:"comment"`       // A human readable description
 	TemplateData map[string]string `json:"template-data"` // data passed to the formula's go templates
 	Routes       []Route           `json:"routes"`        // Determines what to do with incoming URL requests
+	InitialPath  string            `json:"initial-path"`  // The URL path that the test runner should use for the main page of the formula
 	//ProbeBases   []ProbeBasis      `json:"probe-bases"`   // Expected values for test probes used to compare new embedded scripts
 }
 
@@ -40,6 +41,7 @@ func NewPageFormula() *PageFormula {
 	return &PageFormula{
 		TemplateData: map[string]string{},
 		Routes:       make([]Route, 0),
+		InitialPath:  "/",
 		//ProbeBases:   make([]ProbeBasis, 0),
 	}
 }

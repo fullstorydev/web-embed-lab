@@ -38,6 +38,7 @@ func HandleControlRequest(response http.ResponseWriter, request *http.Request, f
 	controlResponse := &ControlResponse{
 		Formulas:       []string{},
 		CurrentFormula: formulaHost.CurrentFormula,
+		InitialPath:    formulaHost.PageFormulas[formulaHost.CurrentFormula].InitialPath,
 	}
 	for formulaName := range formulaHost.PageFormulas {
 		controlResponse.Formulas = append(controlResponse.Formulas, formulaName)
@@ -65,12 +66,13 @@ A serializable data structure for responding from the control API
 type ControlResponse struct {
 	Formulas       []string `json:"formulas"`
 	CurrentFormula string   `json:"current-formula"`
+	InitialPath    string   `json:"initial-path"`
 }
 
 /*
 Uses the HTTP control API to request that the host change to a new page formula
 */
-func RequestPageFormulaChange(httpPort int64, formulaName string) (bool, error) {
+func RequestPageFormulaChange(httpPort int64, formulaName string) (bool, string, error) {
 
 	url := fmt.Sprintf("http://127.0.0.1:%v%v", httpPort, ControlURL)
 
@@ -78,30 +80,33 @@ func RequestPageFormulaChange(httpPort int64, formulaName string) (bool, error) 
 		CurrentFormula: formulaName,
 	})
 	if err != nil {
-		return false, err
+		return false, "", err
 	}
 
 	client := &http.Client{}
 	request, err := http.NewRequest("PUT", url, bytes.NewReader(data))
 	if err != nil {
-		return false, err
+		return false, "", err
 	}
 	response, err := client.Do(request)
 	if err != nil {
-		return false, err
+		return false, "", err
 	}
 	defer response.Body.Close()
 
 	responseData, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return false, err
+		return false, "", err
 	}
 	controlResponse := &ControlResponse{}
 	err = json.Unmarshal(responseData, controlResponse)
 	if err != nil {
-		return false, err
+		return false, "", err
 	}
-	return controlResponse.CurrentFormula == formulaName, nil
+	if controlResponse.CurrentFormula == formulaName {
+		return true, controlResponse.InitialPath, nil
+	}
+	return false, "", nil
 }
 
 /*
