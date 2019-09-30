@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"wel/commands"
 	"wel/experiments"
 	"wel/services/host"
 	"wel/tunnels"
@@ -22,6 +23,7 @@ var frontEndDistPathVar = "FRONT_END_DIST"
 The runner command runs an experiment, using Selenium to run test probes in page formulas.
 */
 func main() {
+	commands.EnvOverrideDotEnv(".env")
 	if run() {
 		logger.Println(aurora.Green("*PASSED*"))
 		os.Exit(0)

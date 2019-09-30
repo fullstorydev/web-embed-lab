@@ -12,7 +12,11 @@ To run tests you'll need [ngrok](https://ngrok.com/download) in your PATH. `ngro
 
 ## Set up environment variables
 
-You will need to set a few environment variables. Look in `web-embed-lab/setup-env.sh.example` for a script that explains what variables need to be set. If you copy that file to `setup-env.sh` and update the variables then you can `source` that file.
+You will need to set a few environment variables.
+
+Look in [`dotenv.example`](../dotenv.example) for an example file with instructions.
+
+(it's just copying the file and then editing that to enter a few values)
 
 ## Clone and initial build
 

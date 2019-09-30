@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"wel/commands"
 	"wel/services/colluder"
 	"wel/services/proxy"
 )
@@ -12,7 +13,7 @@ import (
 var logger = log.New(os.Stdout, "[colluder] ", 0)
 
 func main() {
-	logger.Println("Starting")
+	commands.EnvOverrideDotEnv(".env")
 
 	err := colluder.PrepForCollusion()
 	if err != nil {

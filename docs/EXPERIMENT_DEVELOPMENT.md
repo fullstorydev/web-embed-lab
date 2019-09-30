@@ -45,7 +45,6 @@ Look in web-embed-lab/examples/auto-formulate/ for examples of those configurati
 To automatically capture web sessions and formulate page formulas:
 
 	cd web-embed-lab/
-	source set-env.sh
 	./go/bin/auto-formulate \
 		./examples/auto-formulate/hello-world-formulate.json \	# A config file
 		../pf/	# The destination dir for new page formulas

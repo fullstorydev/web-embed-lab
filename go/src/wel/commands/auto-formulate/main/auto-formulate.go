@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"wel/commands"
 	"wel/formulas"
 	"wel/services/colluder"
 	"wel/services/colluder/session"
@@ -24,6 +25,7 @@ import (
 var logger = log.New(os.Stdout, "[auto-formulate] ", 0)
 
 func main() {
+	commands.EnvOverrideDotEnv(".env")
 	err := run()
 	if err != nil {
 		logger.Println("Error", err)

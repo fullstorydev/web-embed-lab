@@ -1,0 +1,14 @@
+# WEL commands will look for an optional .env file
+# This file can be used to set common process environment variables
+# The commands will look for a .env file only in the current working directory
+
+# Copy this file to .env in the directory where you run commands.
+# Then, edit the .env file to enter your values.
+
+# Note: .env values will not override existing environment values
+
+BROWSERSTACK_USER="your-username-here"
+BROWSERSTACK_API_KEY="your-api-key-here"
+
+# The path to the dist directory created by `make fe`
+FRONT_END_DIST="./fe/dist/"

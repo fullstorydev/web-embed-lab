@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"wel/commands"
 	"wel/formulas"
 	"wel/modifiers"
 )
@@ -41,6 +42,8 @@ func main() {
 		printHelp()
 		return
 	}
+	commands.EnvOverrideDotEnv(".env")
+
 	err := formulas.Formulate(os.Args[1], os.Args[2], []modifiers.FileModifier{}, formulas.ProbeBasis{})
 	if err != nil {
 		logger.Println("Error:", err)

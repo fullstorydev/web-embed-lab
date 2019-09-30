@@ -1,0 +1,15 @@
+# This is an example of setting the environment variables
+# before running a WEL command.
+
+# You could source a file like this from bash
+# (don't run it as a script)
+# For example:
+#	source setup-env.sh
+#	./go/bin/runner ...
+
+# Browserstack auth values
+export BROWSERSTACK_USER="your-username"
+export BROWSERSTACK_API_KEY="your-api-key"
+
+# The path to the dist directory created by `make fe`
+export FRONT_END_DIST="./fe/dist/"

@@ -10,4 +10,7 @@
 /certs
 /captures
 /static
+/.env
+
+# vestigial
 /setup-env.sh
