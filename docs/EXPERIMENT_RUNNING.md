@@ -23,8 +23,6 @@ The command that runs the experiment is named `runner` and once you have success
 Here is an example of `runner` using the examples in the WEL repo:
 
 	cd web-embed-lab/
-	export BROWSERSTACK_USER="example-username"
-	export BROWSERSTACK_API_KEY="example-api-key"
 	./go/bin/runner \
 		./examples/page-formulas/ \
 		./examples/test-probes/ \
